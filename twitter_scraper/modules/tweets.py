@@ -64,20 +64,17 @@ def get_tweets(query, pages=25):
                 ]
 
                 replies = int(
-                    interactions[0].split(' ')[0].replace(comma, '').replace(dot, '')
-                    or interactions[3]
+                    re.sub('\D', '', interactions[0].split(" ")[0]
+                          )
                 )
-
+                
                 retweets = int(
-                    interactions[1].split(' ')[0].replace(comma, '').replace(dot, '')
-                    or interactions[4]
-                    or interactions[5]
+                    re.sub('\D', '', interactions[1].split(" ")[0]
+                          )
                 )
-
                 likes = int(
-                    interactions[2].split(' ')[0].replace(comma, '').replace(dot, '')
-                    or interactions[6]
-                    or interactions[7]
+                    re.sub('\D', '', interactions[2].split(" ")[0]
+                          )
                 )
 
                 hashtags = [

@@ -130,7 +130,40 @@ def get_tweets(query, pages=25):
 
     yield from gen_tweets(pages)
 
-# for searching:
-#
-# https://twitter.com/i/search/timeline?vertical=default&q=foof&src=typd&composed_count=0&include_available_features=1&include_entities=1&include_new_items_bar=true&interval=30000&latent_count=0
-# replace 'foof' with your query string.  Not sure how to decode yet but it seems to work.
+def search_tweet(query):
+    def FindUsername(doit):
+        tmp = doit.find('username u-dir')
+        return doit[tmp+66:tmp+66+doit[tmp+66:].find('<')]
+
+    def FindScreenname(doit):
+        keyword = 'data-name='
+        tmp2 = doit.find('data-name=')
+        return doit[tmp2+len(keyword)+1:tmp2+len(keyword)+1+doit[tmp2+len(keyword)+1:].find('"')]    
+
+    def FindContent(doit):
+        keyword = 'TweetTextSize'
+        tmp2 = doit.find(keyword)
+        withAhref = doit[tmp2+len(keyword)+63:tmp2+len(keyword)+63+doit[tmp2+len(keyword)+63:].find('<\\/p>')].replace("<strong>","").replace("<\\/strong>","")
+        result = re.sub(r'<a href=.+dir="ltr" >',"",withAhref).replace('<s>',"").replace('<\\/s>',"").replace('<b>',"").replace('<\\/b>',"").replace('<\\/a>'," ")
+        result = re.sub(r'<img class=.+>',"",result)
+        return result
+    url = 'https://twitter.com/i/search/timeline?vertical=default&q='+'&src=typd&composed_count=0&include_available_features=1&include_entities=1&include_new_items_bar=true&interval=30000&latent_count=0'
+    got = session.get(query)
+
+    decoded = str(got.text).encode().decode('unicode-escape')
+
+    main_part = decoded[decoded.find('<li class="js-stream-item stream-item stream-item\n"'):]
+
+    singles = []
+
+    while main_part.find('js-stream-item stream-item stream-item') != -1:
+        use = main_part.find('<\\/div>\n\n  <\\/div>\n\n\n\n<\\/li>\n')+29
+        singles.append(main_part[:use])
+        main_part = main_part[use:]
+    result = []
+    for each in singles:
+        single_result = {}
+        single_result["screen_name"] = FindScreenname(each)
+        single_result["username"] = FindUsername(each)
+        single_result["content"] = FindContent(each)
+    return result

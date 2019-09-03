@@ -147,7 +147,7 @@ def search_tweet(query):
         result = re.sub(r'<a href=.+dir="ltr" >',"",withAhref).replace('<s>',"").replace('<\\/s>',"").replace('<b>',"").replace('<\\/b>',"").replace('<\\/a>'," ")
         result = re.sub(r'<img class=.+>',"",result)
         return result
-    url = 'https://twitter.com/i/search/timeline?vertical=default&q='+'&src=typd&composed_count=0&include_available_features=1&include_entities=1&include_new_items_bar=true&interval=30000&latent_count=0'
+    url = 'https://twitter.com/i/search/timeline?vertical=default&q='+query+'&src=typd&composed_count=0&include_available_features=1&include_entities=1&include_new_items_bar=true&interval=30000&latent_count=0'
     got = session.get(query)
 
     decoded = str(got.text).encode().decode('unicode-escape')
